@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  backend_api:
+    container_name: backend_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+    networks:
+      - my_network
+    volumes:
+      - .:/app
+
+  frontend_web:
+    container_name: frontend_web
+    build:
+      context: ../VirtualAssistant_Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
+    volumes:
+      - ../VirtualAssistant_Frontend/src:/src
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    env_file:
+      - ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_USER_USERNAME: ${MONGO_INITDB_USER_USERNAME}
+      MONGO_INITDB_USER_PASSWORD: ${MONGO_INITDB_USER_PASSWORD}
+    ports:
+      - '6000:27017'
+    networks:
+      - my_network
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+volumes:
+  mongo:
+  
+networks:
+  my_network:
+    driver: bridge
+
+
+  
+
